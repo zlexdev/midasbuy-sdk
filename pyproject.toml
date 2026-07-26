@@ -1,0 +1,65 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "midasbuy-sdk"
+version = "0.2.0"
+description = "Async-first typed client for the Midasbuy code-activation API — free tier included"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+keywords = ["midasbuy", "pubg", "uc", "activation", "api", "sdk"]
+# email-validator: the generated ConnectAccountRequest uses pydantic EmailStr,
+# which pydantic v2 resolves at class-definition time — so it's a runtime need,
+# not a dev one (a clean install fails to import the package without it).
+dependencies = ["httpx>=0.27", "pydantic[email]>=2.7"]
+
+[project.urls]
+Homepage = "https://github.com/zlexdev/midasbuy-sdk"
+Issues = "https://github.com/zlexdev/midasbuy-sdk/issues"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-asyncio>=0.24",
+    "respx>=0.21",
+    "ruff>=0.6",
+    "mypy>=1.11",
+    "datamodel-code-generator>=0.25",
+    "unasync>=0.6",
+    "black>=24",
+    "isort>=5",
+    "email-validator>=2",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/midasbuy_sdk"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# Machine-generated: _sync is unasync'd from _async (a sync generator can't be
+# rewritten as `yield from` in the async source); _generated is datamodel-codegen.
+"src/midasbuy_sdk/_sync/**" = ["UP028"]
+"src/midasbuy_sdk/models/_generated.py" = ["E501", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src"]
+
+[[tool.mypy.overrides]]
+# datamodel-codegen output — an enum field with a str default trips strict; the
+# spec is the contract, not this file's annotations.
+module = "midasbuy_sdk.models._generated"
+ignore_errors = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

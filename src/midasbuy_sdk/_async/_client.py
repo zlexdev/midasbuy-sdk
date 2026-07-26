@@ -1,0 +1,54 @@
+"""AsyncMidasbuyClient — the one hand-written client; sync is unasync'd from it."""
+
+from __future__ import annotations
+
+from midasbuy_sdk._async._transport import AsyncTransport
+from midasbuy_sdk._async.resources.accounts import AsyncAccounts
+from midasbuy_sdk._async.resources.catalog import AsyncCatalog
+from midasbuy_sdk._async.resources.characters import AsyncCharacters
+from midasbuy_sdk._async.resources.inventory import AsyncInventory
+from midasbuy_sdk._async.resources.redeem import AsyncRedeem
+from midasbuy_sdk._async.resources.subscription import AsyncSubscription
+from midasbuy_sdk._async.resources.tasks import AsyncTasks
+
+DEFAULT_BASE_URL = "https://free.midas.chqcode.dev/v1"
+"""The free contour. Point at your paid host by passing ``base_url=``."""
+
+
+class AsyncMidasbuyClient:
+    """Resource-grouped async client. Use as an async context manager to close
+    the connection pool.
+
+        async with AsyncMidasbuyClient("your-key") as client:
+            result = await client.redeem.activate_and_wait(
+                "CODE-1234", account_id="acc_...", game="pubgm"
+            )
+    """
+
+    def __init__(
+        self,
+        api_key: str,
+        *,
+        base_url: str = DEFAULT_BASE_URL,
+        timeout: float = 30.0,
+        max_retries: int = 3,
+    ) -> None:
+        self._t = AsyncTransport(
+            api_key, base_url=base_url, timeout=timeout, max_retries=max_retries
+        )
+        self.accounts = AsyncAccounts(self._t)
+        self.catalog = AsyncCatalog(self._t)
+        self.inventory = AsyncInventory(self._t)
+        self.redeem = AsyncRedeem(self._t)
+        self.tasks = AsyncTasks(self._t)
+        self.subscription = AsyncSubscription(self._t)
+        self.characters = AsyncCharacters(self._t)
+
+    async def __aenter__(self) -> AsyncMidasbuyClient:
+        return self
+
+    async def __aexit__(self, *_: object) -> None:
+        await self.aclose()
+
+    async def aclose(self) -> None:
+        await self._t.aclose()

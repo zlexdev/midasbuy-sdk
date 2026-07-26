@@ -1,0 +1,73 @@
+# Publish to PyPI on a version tag, via a Trusted Publisher (OIDC).
+#
+# No API token lives in this repository. PyPI is configured once, by hand, to
+# trust THIS repo + THIS workflow file + the `pypi` environment; the job then
+# exchanges a short-lived OIDC token for upload rights. A leaked repo secret
+# cannot publish, because there is no secret to leak.
+#
+# One-time setup on PyPI (Project → Publishing → Add a new pending publisher):
+#   owner: zlexdev · repo: midasbuy-sdk · workflow: publish.yml · environment: pypi
+#
+# Cutting a release:
+#   1. bump `version` in pyproject.toml AND `__version__` in __init__.py
+#   2. git tag v0.1.0 && git push origin v0.1.0
+name: publish
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]" build
+
+      # The gate: a broken release is worse than a late one.
+      - name: Checks
+        run: |
+          ruff check .
+          mypy
+          pytest -q
+
+      # The tag IS the version — a mismatch means the wheel on PyPI would not
+      # match the source at that tag, and that is unfixable after upload.
+      - name: Tag matches the packaged version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          pkg="$(python -c 'import tomllib,pathlib;print(tomllib.loads(pathlib.Path("pyproject.toml").read_text())["project"]["version"])')"
+          test "$tag" = "$pkg" || { echo "tag $tag != version $pkg"; exit 1; }
+
+      - name: Build
+        run: python -m build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write  # the OIDC token exchanged for upload rights
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - uses: pypa/gh-action-pypi-publish@release/v1

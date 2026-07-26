@@ -1,0 +1,3256 @@
+{
+  "components": {
+    "schemas": {
+      "Account": {
+        "properties": {
+          "account_id": {
+            "title": "Account Id",
+            "type": "string"
+          },
+          "connected_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Connected At"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          },
+          "midas_uid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Midas Uid"
+          },
+          "status": {
+            "$ref": "#/components/schemas/AccountStatus"
+          }
+        },
+        "required": [
+          "account_id",
+          "status"
+        ],
+        "title": "Account",
+        "type": "object"
+      },
+      "AccountConnectAccepted": {
+        "properties": {
+          "account_id": {
+            "title": "Account Id",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/AccountStatus"
+          }
+        },
+        "required": [
+          "account_id",
+          "status"
+        ],
+        "title": "AccountConnectAccepted",
+        "type": "object"
+      },
+      "AccountEnv": {
+        "enum": [
+          "online",
+          "verify"
+        ],
+        "title": "AccountEnv",
+        "type": "string"
+      },
+      "AccountStatus": {
+        "enum": [
+          "connecting",
+          "running",
+          "connected",
+          "failed",
+          "expired",
+          "revoked"
+        ],
+        "title": "AccountStatus",
+        "type": "string"
+      },
+      "ActivateByDenominationRequest": {
+        "properties": {
+          "account_id": {
+            "maxLength": 26,
+            "minLength": 1,
+            "title": "Account Id",
+            "type": "string"
+          },
+          "denomination_value": {
+            "exclusiveMinimum": 0.0,
+            "title": "Denomination Value",
+            "type": "integer"
+          },
+          "game": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Game",
+            "type": "string"
+          },
+          "player_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Player Id"
+          }
+        },
+        "required": [
+          "account_id",
+          "game",
+          "denomination_value"
+        ],
+        "title": "ActivateByDenominationRequest",
+        "type": "object"
+      },
+      "ActivateRequest": {
+        "properties": {
+          "account_id": {
+            "maxLength": 26,
+            "minLength": 1,
+            "title": "Account Id",
+            "type": "string"
+          },
+          "code": {
+            "format": "password",
+            "title": "Code",
+            "type": "string",
+            "writeOnly": true
+          },
+          "game": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Game",
+            "type": "string"
+          },
+          "player_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Player Id"
+          }
+        },
+        "required": [
+          "account_id",
+          "game",
+          "code"
+        ],
+        "title": "ActivateRequest",
+        "type": "object"
+      },
+      "ActivationAccepted": {
+        "properties": {
+          "activation_id": {
+            "title": "Activation Id",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ActivationState"
+          }
+        },
+        "required": [
+          "activation_id",
+          "status"
+        ],
+        "title": "ActivationAccepted",
+        "type": "object"
+      },
+      "ActivationResult": {
+        "properties": {
+          "activation_id": {
+            "title": "Activation Id",
+            "type": "string"
+          },
+          "failure_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failure Code"
+          },
+          "finalised_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finalised At"
+          },
+          "game": {
+            "title": "Game",
+            "type": "string"
+          },
+          "granted_item": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granted Item"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ActivationState"
+          }
+        },
+        "required": [
+          "activation_id",
+          "status",
+          "game"
+        ],
+        "title": "ActivationResult",
+        "type": "object"
+      },
+      "ActivationState": {
+        "enum": [
+          "pending",
+          "running",
+          "success",
+          "failed",
+          "indeterminate"
+        ],
+        "title": "ActivationState",
+        "type": "string"
+      },
+      "AddCodeItem": {
+        "properties": {
+          "code": {
+            "format": "password",
+            "title": "Code",
+            "type": "string",
+            "writeOnly": true
+          },
+          "currency": {
+            "default": "",
+            "maxLength": 8,
+            "title": "Currency",
+            "type": "string"
+          },
+          "denomination_value": {
+            "exclusiveMinimum": 0.0,
+            "title": "Denomination Value",
+            "type": "integer"
+          },
+          "game": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Game",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "game",
+          "denomination_value"
+        ],
+        "title": "AddCodeItem",
+        "type": "object"
+      },
+      "AddCodesRequest": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AddCodeItem"
+            },
+            "minItems": 1,
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "AddCodesRequest",
+        "type": "object"
+      },
+      "AddCodesResult": {
+        "properties": {
+          "added": {
+            "title": "Added",
+            "type": "integer"
+          },
+          "invalid": {
+            "title": "Invalid",
+            "type": "integer"
+          },
+          "skipped_duplicates": {
+            "title": "Skipped Duplicates",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "added",
+          "skipped_duplicates",
+          "invalid"
+        ],
+        "title": "AddCodesResult",
+        "type": "object"
+      },
+      "BatchActivateByDenominationRequest": {
+        "properties": {
+          "account_id": {
+            "maxLength": 26,
+            "minLength": 1,
+            "title": "Account Id",
+            "type": "string"
+          },
+          "denomination_value": {
+            "exclusiveMinimum": 0.0,
+            "title": "Denomination Value",
+            "type": "integer"
+          },
+          "game": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Game",
+            "type": "string"
+          },
+          "player_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Player Id"
+          },
+          "quantity": {
+            "maximum": 1000.0,
+            "minimum": 1.0,
+            "title": "Quantity",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "account_id",
+          "game",
+          "denomination_value",
+          "quantity"
+        ],
+        "title": "BatchActivateByDenominationRequest",
+        "type": "object"
+      },
+      "BatchActivationAccepted": {
+        "properties": {
+          "accepted": {
+            "title": "Accepted",
+            "type": "integer"
+          },
+          "activation_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Activation Ids",
+            "type": "array"
+          },
+          "requested": {
+            "title": "Requested",
+            "type": "integer"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ActivationState"
+          }
+        },
+        "required": [
+          "requested",
+          "accepted",
+          "activation_ids",
+          "status"
+        ],
+        "title": "BatchActivationAccepted",
+        "type": "object"
+      },
+      "BatchItem": {
+        "properties": {
+          "code": {
+            "format": "password",
+            "title": "Code",
+            "type": "string",
+            "writeOnly": true
+          },
+          "game": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Game",
+            "type": "string"
+          },
+          "player_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Player Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "player_id",
+          "game",
+          "code"
+        ],
+        "title": "BatchItem",
+        "type": "object"
+      },
+      "BatchRequest": {
+        "properties": {
+          "account_id": {
+            "maxLength": 26,
+            "minLength": 1,
+            "title": "Account Id",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/BatchItem"
+            },
+            "minItems": 1,
+            "title": "Items",
+            "type": "array"
+          },
+          "webhook_url": {
+            "anyOf": [
+              {
+                "format": "uri",
+                "maxLength": 2083,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Webhook Url"
+          }
+        },
+        "required": [
+          "account_id",
+          "items"
+        ],
+        "title": "BatchRequest",
+        "type": "object"
+      },
+      "BatchStatusRequest": {
+        "properties": {
+          "activation_ids": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Activation Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "activation_ids"
+        ],
+        "title": "BatchStatusRequest",
+        "type": "object"
+      },
+      "BatchStatusResult": {
+        "properties": {
+          "activations": {
+            "items": {
+              "$ref": "#/components/schemas/ActivationResult"
+            },
+            "title": "Activations",
+            "type": "array"
+          },
+          "missing": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing",
+            "type": "array"
+          }
+        },
+        "required": [
+          "activations",
+          "missing"
+        ],
+        "title": "BatchStatusResult",
+        "type": "object"
+      },
+      "CatalogItem": {
+        "properties": {
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "game": {
+            "title": "Game",
+            "type": "string"
+          },
+          "item_id": {
+            "title": "Item Id",
+            "type": "string"
+          },
+          "price": {
+            "title": "Price",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "item_id",
+          "game",
+          "title",
+          "price",
+          "currency"
+        ],
+        "title": "CatalogItem",
+        "type": "object"
+      },
+      "Character": {
+        "properties": {
+          "game": {
+            "title": "Game",
+            "type": "string"
+          },
+          "is_ban": {
+            "default": false,
+            "title": "Is Ban",
+            "type": "boolean"
+          },
+          "player_id": {
+            "title": "Player Id",
+            "type": "string"
+          },
+          "region": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Region"
+          },
+          "role_name": {
+            "title": "Role Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "player_id",
+          "game",
+          "role_name"
+        ],
+        "title": "Character",
+        "type": "object"
+      },
+      "CharacterList": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Character"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "CharacterList",
+        "type": "object"
+      },
+      "CharacterRefreshRequest": {
+        "properties": {
+          "account_id": {
+            "maxLength": 26,
+            "minLength": 1,
+            "title": "Account Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "account_id"
+        ],
+        "title": "CharacterRefreshRequest",
+        "type": "object"
+      },
+      "CodeStatus": {
+        "enum": [
+          "available",
+          "reserved",
+          "used",
+          "invalid"
+        ],
+        "title": "CodeStatus",
+        "type": "string"
+      },
+      "CodeStock": {
+        "properties": {
+          "available": {
+            "title": "Available",
+            "type": "integer"
+          },
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "denomination_value": {
+            "title": "Denomination Value",
+            "type": "integer"
+          },
+          "game": {
+            "title": "Game",
+            "type": "string"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "game",
+          "denomination_value",
+          "currency",
+          "available",
+          "total"
+        ],
+        "title": "CodeStock",
+        "type": "object"
+      },
+      "ConnectAccountRequest": {
+        "properties": {
+          "country": {
+            "$ref": "#/components/schemas/Country"
+          },
+          "email": {
+            "format": "email",
+            "title": "Email",
+            "type": "string"
+          },
+          "env": {
+            "$ref": "#/components/schemas/AccountEnv",
+            "default": "online"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          },
+          "offer_id": {
+            "default": "1450015065",
+            "title": "Offer Id",
+            "type": "string"
+          },
+          "password": {
+            "format": "password",
+            "title": "Password",
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "country"
+        ],
+        "title": "ConnectAccountRequest",
+        "type": "object"
+      },
+      "Country": {
+        "enum": [
+          "US",
+          "BR",
+          "ID",
+          "TH",
+          "PH",
+          "VN",
+          "MY",
+          "SG",
+          "IN",
+          "TR",
+          "RU",
+          "MX",
+          "EG",
+          "SA",
+          "AE",
+          "PK",
+          "TW",
+          "HK",
+          "KR",
+          "JP"
+        ],
+        "title": "Country",
+        "type": "string"
+      },
+      "DataResponse_AccountConnectAccepted_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AccountConnectAccepted"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "DataResponse[AccountConnectAccepted]",
+        "type": "object"
+      },
+      "DataResponse_Account_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Account"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "DataResponse[Account]",
+        "type": "object"
+      },
+      "DataResponse_ActivationAccepted_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ActivationAccepted"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "DataResponse[ActivationAccepted]",
+        "type": "object"
+      },
+      "DataResponse_ActivationResult_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ActivationResult"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "DataResponse[ActivationResult]",
+        "type": "object"
+      },
+      "DataResponse_AddCodesResult_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/AddCodesResult"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "DataResponse[AddCodesResult]",
+        "type": "object"
+      },
+      "DataResponse_BatchActivationAccepted_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/BatchActivationAccepted"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "DataResponse[BatchActivationAccepted]",
+        "type": "object"
+      },
+      "DataResponse_BatchStatusResult_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/BatchStatusResult"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "DataResponse[BatchStatusResult]",
+        "type": "object"
+      },
+      "DataResponse_CatalogItem_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/CatalogItem"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "DataResponse[CatalogItem]",
+        "type": "object"
+      },
+      "DataResponse_CharacterList_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/CharacterList"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "DataResponse[CharacterList]",
+        "type": "object"
+      },
+      "DataResponse_Character_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Character"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "DataResponse[Character]",
+        "type": "object"
+      },
+      "DataResponse_Page_Account__": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Page_Account_"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "DataResponse[Page[Account]]",
+        "type": "object"
+      },
+      "DataResponse_Page_ActivationResult__": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Page_ActivationResult_"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "DataResponse[Page[ActivationResult]]",
+        "type": "object"
+      },
+      "DataResponse_Page_CatalogItem__": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Page_CatalogItem_"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "DataResponse[Page[CatalogItem]]",
+        "type": "object"
+      },
+      "DataResponse_Page_CodeStock__": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Page_CodeStock_"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "DataResponse[Page[CodeStock]]",
+        "type": "object"
+      },
+      "DataResponse_Page_InventoryItem__": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Page_InventoryItem_"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "DataResponse[Page[InventoryItem]]",
+        "type": "object"
+      },
+      "DataResponse_Page_TaskSummary__": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Page_TaskSummary_"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "DataResponse[Page[TaskSummary]]",
+        "type": "object"
+      },
+      "DataResponse_RefreshAccepted_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/RefreshAccepted"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "DataResponse[RefreshAccepted]",
+        "type": "object"
+      },
+      "DataResponse_SubscriptionStatusPublic_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/SubscriptionStatusPublic"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "DataResponse[SubscriptionStatusPublic]",
+        "type": "object"
+      },
+      "DataResponse_TaskAccepted_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/TaskAccepted"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "DataResponse[TaskAccepted]",
+        "type": "object"
+      },
+      "DataResponse_TaskResult_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/TaskResult"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "DataResponse[TaskResult]",
+        "type": "object"
+      },
+      "DataResponse_list_Game__": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/Game"
+            },
+            "title": "Data",
+            "type": "array"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "DataResponse[list[Game]]",
+        "type": "object"
+      },
+      "Game": {
+        "properties": {
+          "item_id_prefix": {
+            "title": "Item Id Prefix",
+            "type": "string"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug",
+          "title",
+          "item_id_prefix"
+        ],
+        "title": "Game",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "InventoryItem": {
+        "properties": {
+          "code_id": {
+            "title": "Code Id",
+            "type": "string"
+          },
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "denomination_value": {
+            "title": "Denomination Value",
+            "type": "integer"
+          },
+          "game": {
+            "title": "Game",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CodeStatus"
+          }
+        },
+        "required": [
+          "code_id",
+          "game",
+          "denomination_value",
+          "currency",
+          "status"
+        ],
+        "title": "InventoryItem",
+        "type": "object"
+      },
+      "PackageRequest": {
+        "properties": {
+          "account_id": {
+            "maxLength": 26,
+            "minLength": 1,
+            "title": "Account Id",
+            "type": "string"
+          },
+          "amount": {
+            "exclusiveMinimum": 0.0,
+            "title": "Amount",
+            "type": "integer"
+          },
+          "game": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Game",
+            "type": "string"
+          },
+          "player_id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Player Id",
+            "type": "string"
+          },
+          "webhook_url": {
+            "anyOf": [
+              {
+                "format": "uri",
+                "maxLength": 2083,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Webhook Url"
+          }
+        },
+        "required": [
+          "account_id",
+          "player_id",
+          "game",
+          "amount"
+        ],
+        "title": "PackageRequest",
+        "type": "object"
+      },
+      "Page_Account_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Account"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "total": {
+            "minimum": 0.0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "title": "Page[Account]",
+        "type": "object"
+      },
+      "Page_ActivationResult_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ActivationResult"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "total": {
+            "minimum": 0.0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "title": "Page[ActivationResult]",
+        "type": "object"
+      },
+      "Page_CatalogItem_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "total": {
+            "minimum": 0.0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "title": "Page[CatalogItem]",
+        "type": "object"
+      },
+      "Page_CodeStock_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CodeStock"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "total": {
+            "minimum": 0.0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "title": "Page[CodeStock]",
+        "type": "object"
+      },
+      "Page_InventoryItem_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/InventoryItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "total": {
+            "minimum": 0.0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "title": "Page[InventoryItem]",
+        "type": "object"
+      },
+      "Page_TaskSummary_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/TaskSummary"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "total": {
+            "minimum": 0.0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "title": "Page[TaskSummary]",
+        "type": "object"
+      },
+      "RefreshAccepted": {
+        "properties": {
+          "status": {
+            "default": "accepted",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "title": "RefreshAccepted",
+        "type": "object"
+      },
+      "SubscriptionStatus": {
+        "enum": [
+          "active",
+          "expired",
+          "exhausted",
+          "revoked"
+        ],
+        "title": "SubscriptionStatus",
+        "type": "string"
+      },
+      "SubscriptionStatusPublic": {
+        "properties": {
+          "expires_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "rate_limit_per_min": {
+            "title": "Rate Limit Per Min",
+            "type": "integer"
+          },
+          "remaining_quota": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remaining Quota"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SubscriptionStatus"
+          },
+          "type": {
+            "$ref": "#/components/schemas/SubscriptionType"
+          }
+        },
+        "required": [
+          "type",
+          "status",
+          "rate_limit_per_min"
+        ],
+        "title": "SubscriptionStatusPublic",
+        "type": "object"
+      },
+      "SubscriptionType": {
+        "enum": [
+          "duration",
+          "quota"
+        ],
+        "title": "SubscriptionType",
+        "type": "string"
+      },
+      "TaskAccepted": {
+        "properties": {
+          "state": {
+            "$ref": "#/components/schemas/TaskState"
+          },
+          "task_id": {
+            "title": "Task Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_id",
+          "state"
+        ],
+        "title": "TaskAccepted",
+        "type": "object"
+      },
+      "TaskItemResult": {
+        "properties": {
+          "activation_id": {
+            "title": "Activation Id",
+            "type": "string"
+          },
+          "failure_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failure Code"
+          },
+          "game": {
+            "title": "Game",
+            "type": "string"
+          },
+          "granted_item": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granted Item"
+          },
+          "player_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Player Id"
+          },
+          "state": {
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "activation_id",
+          "state",
+          "game"
+        ],
+        "title": "TaskItemResult",
+        "type": "object"
+      },
+      "TaskResult": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "done_count": {
+            "title": "Done Count",
+            "type": "integer"
+          },
+          "finalised_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finalised At"
+          },
+          "item_count": {
+            "title": "Item Count",
+            "type": "integer"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/TaskItemResult"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "state": {
+            "$ref": "#/components/schemas/TaskState"
+          },
+          "success_count": {
+            "title": "Success Count",
+            "type": "integer"
+          },
+          "task_id": {
+            "title": "Task Id",
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/TaskType"
+          }
+        },
+        "required": [
+          "task_id",
+          "type",
+          "state",
+          "item_count",
+          "done_count",
+          "success_count",
+          "created_at",
+          "items"
+        ],
+        "title": "TaskResult",
+        "type": "object"
+      },
+      "TaskState": {
+        "enum": [
+          "pending",
+          "running",
+          "success",
+          "partial",
+          "failed"
+        ],
+        "title": "TaskState",
+        "type": "string"
+      },
+      "TaskSummary": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "done_count": {
+            "title": "Done Count",
+            "type": "integer"
+          },
+          "finalised_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finalised At"
+          },
+          "item_count": {
+            "title": "Item Count",
+            "type": "integer"
+          },
+          "state": {
+            "$ref": "#/components/schemas/TaskState"
+          },
+          "success_count": {
+            "title": "Success Count",
+            "type": "integer"
+          },
+          "task_id": {
+            "title": "Task Id",
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/TaskType"
+          }
+        },
+        "required": [
+          "task_id",
+          "type",
+          "state",
+          "item_count",
+          "done_count",
+          "success_count",
+          "created_at"
+        ],
+        "title": "TaskSummary",
+        "type": "object"
+      },
+      "TaskType": {
+        "enum": [
+          "batch",
+          "package"
+        ],
+        "title": "TaskType",
+        "type": "string"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "Midasbuy API",
+    "version": "1.0.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/v1/accounts/connect": {
+      "post": {
+        "operationId": "connect_account_v1_accounts_connect_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnectAccountRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataResponse_AccountConnectAccepted_"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "accounts"
+        ]
+      }
+    },
+    "/v1/accounts/get": {
+      "get": {
+        "operationId": "get_account_v1_accounts_get_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "title": "Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataResponse_Account_"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "accounts"
+        ]
+      }
+    },
+    "/v1/accounts/list": {
+      "get": {
+        "operationId": "list_accounts_v1_accounts_list_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataResponse_Page_Account__"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "accounts"
+        ]
+      }
+    },
+    "/v1/catalog/games": {
+      "get": {
+        "operationId": "list_games_v1_catalog_games_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataResponse_list_Game__"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "catalog"
+        ]
+      }
+    },
+    "/v1/catalog/get_item": {
+      "get": {
+        "operationId": "get_item_v1_catalog_get_item_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "title": "Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataResponse_CatalogItem_"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "catalog"
+        ]
+      }
+    },
+    "/v1/catalog/items": {
+      "get": {
+        "operationId": "list_items_v1_catalog_items_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "game",
+            "required": true,
+            "schema": {
+              "title": "Game",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataResponse_Page_CatalogItem__"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "catalog"
+        ]
+      }
+    },
+    "/v1/characters/list": {
+      "get": {
+        "operationId": "list_characters_v1_characters_list_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "account_id",
+            "required": true,
+            "schema": {
+              "title": "Account Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "game",
+            "required": true,
+            "schema": {
+              "title": "Game",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataResponse_CharacterList_"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "characters"
+        ]
+      }
+    },
+    "/v1/characters/lookup": {
+      "get": {
+        "operationId": "lookup_character_v1_characters_lookup_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "account_id",
+            "required": true,
+            "schema": {
+              "title": "Account Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "game",
+            "required": true,
+            "schema": {
+              "title": "Game",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "player_id",
+            "required": true,
+            "schema": {
+              "title": "Player Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "zone_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Zone Id"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataResponse_Character_"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "characters"
+        ]
+      }
+    },
+    "/v1/characters/refresh": {
+      "post": {
+        "operationId": "refresh_characters_v1_characters_refresh_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CharacterRefreshRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataResponse_RefreshAccepted_"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "characters"
+        ]
+      }
+    },
+    "/v1/inventory/add": {
+      "post": {
+        "operationId": "add_codes_v1_inventory_add_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddCodesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataResponse_AddCodesResult_"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "inventory"
+        ]
+      }
+    },
+    "/v1/inventory/list": {
+      "get": {
+        "operationId": "list_codes_v1_inventory_list_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "game",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Game"
+            }
+          },
+          {
+            "in": "query",
+            "name": "code_status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/CodeStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Code Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataResponse_Page_InventoryItem__"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "inventory"
+        ]
+      }
+    },
+    "/v1/inventory/stock": {
+      "get": {
+        "operationId": "stock_summary_v1_inventory_stock_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataResponse_Page_CodeStock__"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "inventory"
+        ]
+      }
+    },
+    "/v1/redeem/activate": {
+      "post": {
+        "operationId": "activate_v1_redeem_activate_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataResponse_ActivationAccepted_"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "redeem"
+        ]
+      }
+    },
+    "/v1/redeem/activate-batch-by-denomination": {
+      "post": {
+        "operationId": "activate_batch_by_denomination_v1_redeem_activate_batch_by_denomination_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchActivateByDenominationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataResponse_BatchActivationAccepted_"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "redeem"
+        ]
+      }
+    },
+    "/v1/redeem/activate-by-denomination": {
+      "post": {
+        "operationId": "activate_by_denomination_v1_redeem_activate_by_denomination_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivateByDenominationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataResponse_ActivationAccepted_"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "redeem"
+        ]
+      }
+    },
+    "/v1/redeem/get": {
+      "get": {
+        "operationId": "get_activation_v1_redeem_get_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "title": "Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataResponse_ActivationResult_"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "redeem"
+        ]
+      }
+    },
+    "/v1/redeem/list": {
+      "get": {
+        "operationId": "list_activations_v1_redeem_list_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataResponse_Page_ActivationResult__"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "redeem"
+        ]
+      }
+    },
+    "/v1/redeem/preview": {
+      "post": {
+        "operationId": "preview_v1_redeem_preview_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataResponse_ActivationAccepted_"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "redeem"
+        ]
+      }
+    },
+    "/v1/redeem/status-batch": {
+      "post": {
+        "operationId": "batch_status_v1_redeem_status_batch_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchStatusRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataResponse_BatchStatusResult_"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "redeem"
+        ]
+      }
+    },
+    "/v1/subscription": {
+      "get": {
+        "operationId": "get_subscription_v1_subscription_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataResponse_SubscriptionStatusPublic_"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "subscription"
+        ]
+      }
+    },
+    "/v1/tasks/batch": {
+      "post": {
+        "operationId": "create_batch_v1_tasks_batch_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataResponse_TaskAccepted_"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/v1/tasks/get": {
+      "get": {
+        "operationId": "get_task_v1_tasks_get_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "title": "Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataResponse_TaskResult_"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/v1/tasks/list": {
+      "get": {
+        "operationId": "list_tasks_v1_tasks_list_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataResponse_Page_TaskSummary__"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/v1/tasks/package": {
+      "post": {
+        "operationId": "create_package_v1_tasks_package_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PackageRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataResponse_TaskAccepted_"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "tasks"
+        ]
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "accounts"
+    },
+    {
+      "name": "catalog"
+    },
+    {
+      "name": "characters"
+    },
+    {
+      "name": "inventory"
+    },
+    {
+      "name": "redeem"
+    },
+    {
+      "name": "subscription"
+    },
+    {
+      "name": "tasks"
+    }
+  ]
+}
