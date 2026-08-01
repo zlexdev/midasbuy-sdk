@@ -29,6 +29,11 @@ from midasbuy_sdk import models
 from midasbuy_sdk._async._client import DEFAULT_BASE_URL, AsyncMidasbuyClient
 from midasbuy_sdk._pagination import Page
 from midasbuy_sdk._sync._client import MidasbuyClient
+
+# The states a quickstart has to branch on live at the top level with the client:
+# the first example must run exactly as copied, and `from midasbuy_sdk.models import
+# AccountStatus` is one indirection more than a first screen may cost.
+from midasbuy_sdk.enums import GameSlug
 from midasbuy_sdk.errors import (
     AuthFailed,
     DailyCapReached,
@@ -41,18 +46,32 @@ from midasbuy_sdk.errors import (
     ValidationFailed,
     WaitTimeout,
 )
+from midasbuy_sdk.models import (
+    AccountEnv,
+    AccountStatus,
+    ActivationState,
+    CodeStatus,
+    Country,
+    SubscriptionStatus,
+    SubscriptionType,
+    TaskState,
+    TaskType,
+)
 
-# The states a quickstart has to branch on live at the top level with the client:
-# the first example must run exactly as copied, and `from midasbuy_sdk.models import
-# AccountStatus` is one indirection more than a first screen may cost.
-from midasbuy_sdk.models import AccountStatus, ActivationState
-
-__version__ = "0.3.1"
+__version__ = "0.4.0"
 
 __all__ = [
     "DEFAULT_BASE_URL",
+    "AccountEnv",
     "AccountStatus",
     "ActivationState",
+    "CodeStatus",
+    "Country",
+    "GameSlug",
+    "SubscriptionStatus",
+    "SubscriptionType",
+    "TaskState",
+    "TaskType",
     "AsyncMidasbuyClient",
     "AuthFailed",
     "DailyCapReached",

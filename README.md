@@ -75,6 +75,23 @@ async def main() -> None:
 asyncio.run(main())
 ```
 
+### Константы вместо строк
+
+Всё, что сервер объявляет значением из списка, лежит в пакете — не перепечатывайте
+строки руками:
+
+```python
+from midasbuy_sdk import ActivationState, Country, GameSlug
+
+if result.status is ActivationState.success: ...
+await client.accounts.connect(country=Country.RU, email=..., password=...)
+await client.redeem.activate("CODE", account_id=acc, game=GameSlug.PUBGM)
+```
+
+`GameSlug` — исключение, и это важно: список игр живёт строками в каталоге контура,
+а не в схеме API. Enum перечисляет те, что есть сегодня, но параметр остаётся `str`,
+поэтому новый слаг работает без обновления пакета. Точный список — `catalog.games()`.
+
 Не знаете, тот ли это игрок — проверьте до списания кода:
 
 ```python

@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import json
+from enum import StrEnum
+
 import httpx
 import pytest
 import respx
@@ -10,6 +13,7 @@ from midasbuy_sdk import (
     AsyncMidasbuyClient,
     AuthFailed,
     DailyCapReached,
+    GameSlug,
     MidasbuyClient,
     NetworkError,
     NotFound,
@@ -393,3 +397,47 @@ def test_the_default_host_is_the_one_the_docs_name() -> None:
     for doc in ("README.md", "DESIGN.md"):
         text = (root / doc).read_text(encoding="utf-8")
         assert host in text, f"{doc} names a different host than DEFAULT_BASE_URL"
+
+
+def test_every_server_enum_is_reachable_without_digging() -> None:
+    """A value the server declares must be importable from the package root.
+
+    Retyping `"success"` or `"RU"` at a call site is how a typo becomes a 422 that
+    only shows up in production; the fix is that the constant is easier to reach
+    than the literal.
+    """
+    import midasbuy_sdk
+    from midasbuy_sdk import models
+
+    declared = {
+        name
+        for name in dir(models)
+        if isinstance(getattr(models, name), type)
+        and issubclass(getattr(models, name), StrEnum)
+        and getattr(models, name) is not StrEnum
+    }
+    missing = sorted(name for name in declared if not hasattr(midasbuy_sdk, name))
+    assert not missing, f"enums reachable only via .models: {missing}"
+
+
+def test_a_game_slug_passes_as_a_plain_string() -> None:
+    """The enum is a convenience, never a gate: the catalog owns the real list, so
+    an unknown slug must still reach the server (which answers `game_not_supported`
+    if it means it)."""
+    assert GameSlug.PUBGM == "pubgm"
+    assert f"{GameSlug.PUBGM}" == "pubgm"
+    assert "GameSlug" not in str(GameSlug.CODM)
+
+
+@respx.mock
+def test_the_enum_travels_as_its_value_on_the_wire() -> None:
+    route = respx.post(f"{BASE}/redeem/activate").mock(
+        return_value=httpx.Response(
+            202, json={"data": {"activation_id": "a1", "status": "pending"}}
+        )
+    )
+
+    with _client() as client:
+        client.redeem.activate("C", account_id="acc", game=GameSlug.PUBGM)
+
+    assert json.loads(route.calls[0].request.content)["game"] == "pubgm"
