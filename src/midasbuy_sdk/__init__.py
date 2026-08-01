@@ -58,7 +58,7 @@ from midasbuy_sdk.models import (
     TaskType,
 )
 
-__version__ = "0.4.1"
+__version__ = "0.4.2"
 
 __all__ = [
     "DEFAULT_BASE_URL",

@@ -139,49 +139,51 @@ async def sell(code: str, player_id: str) -> str:
 print(asyncio.run(sell("CODE-1234", "5544128792")))
 ```
 
-### Пачка кодов разным игрокам — параллельно, один опрос на всех
+### Пачка кодов разным игрокам — одна задача вместо N вызовов
 
-Когда пришёл заказ на десятки выдач. Активации ставятся в очередь параллельно, а
-статусы забираются **одним** вызовом вместо N опросов — это и есть причина, по которой
-клиент асинхронный.
+Когда пришёл заказ на десятки выдач. `tasks.batch` принимает весь список **одним**
+запросом и возвращает один `task_id`: сервер сам раскладывает его на активации, а вы
+следите за одной сущностью, а не за сотней.
 
 ```python
 import asyncio
 
-from midasbuy_sdk import ActivationState, AsyncMidasbuyClient, GameSlug
+from midasbuy_sdk import AsyncMidasbuyClient, GameSlug, TaskState
 
 ORDERS = [("CODE-1", "5544128792"), ("CODE-2", "5544128793")]
 
 
-async def bulk() -> dict[str, ActivationState]:
+async def bulk() -> None:
     async with AsyncMidasbuyClient("ваш-ключ") as client:
-        jobs = await asyncio.gather(*(
-            client.redeem.activate(
-                code,
-                account_id="acc_01H...",
-                game=GameSlug.PUBGM,
-                player_id=player,
-                # Свой ключ идемпотентности: ваш собственный ретрай тогда
-                # схлопнется в ту же активацию, а не во вторую.
-                idempotency_key=f"order-42:{code}",
-            )
-            for code, player in ORDERS
-        ))
+        task = await client.tasks.batch(
+            account_id="acc_01H...",
+            items=[
+                {"code": code, "game": GameSlug.PUBGM, "player_id": player}
+                for code, player in ORDERS
+            ],
+            # Свой ключ идемпотентности: ваш собственный ретрай тогда схлопнется
+            # в ту же задачу, а не создаст вторую.
+            idempotency_key="order-42",
+        )
 
-        while True:
-            rows = await client.redeem.status_batch([j.activation_id for j in jobs])
-            done = {
-                r.activation_id: r.status
-                for r in rows.activations
-                if r.status not in (ActivationState.pending, ActivationState.running)
-            }
-            if len(done) == len(jobs):
-                return done
+        while (summary := await client.tasks.get(task.task_id)).state in (
+            TaskState.pending,
+            TaskState.running,
+        ):
             await asyncio.sleep(2)
 
+        print(summary.state, summary.success_count, "из", summary.item_count)
+        for item in summary.items:
+            print(item.player_id, item.state, item.granted_item or item.failure_code)
 
-print(asyncio.run(bulk()))
+
+asyncio.run(bulk())
 ```
+
+Отдельные вызовы `redeem.activate` через `asyncio.gather` тоже работают и нужны там,
+где у каждой выдачи своя судьба: свой ключ идемпотентности, свой аккаунт, своя
+обработка отказа. Тогда статусы забираются одним `redeem.status_batch(ids)`, а не
+опросом по одному. Но если это один заказ — берите `tasks.batch`.
 
 ### Свой склад кодов — активация по номиналу
 
