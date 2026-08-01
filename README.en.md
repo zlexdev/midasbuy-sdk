@@ -190,6 +190,27 @@ own failure handling. Then collect the outcomes with a single
 `redeem.status_batch(ids)` rather than polling one by one. But if it is one order, reach
 for `tasks.batch`.
 
+#### Which batch, when
+
+There are four bulk operations and they are not interchangeable. Pick by what you
+actually hold: a list of codes, a denomination, or an amount.
+
+| Job | Method | What comes back |
+|---|---|---|
+| Different codes to different players, one order | `tasks.batch(items=[{code, game, player_id}])` | one `task_id`, a summary plus per-item outcomes |
+| N codes of one denomination from stock | `redeem.activate_batch_by_denomination(denomination_value=, quantity=)` | `accepted` / `requested` plus the `activation_ids` |
+| Assemble an amount out of whatever is in stock | `tasks.package(amount=)` | one `task_id`; the server picks the denominations |
+| Load purchased codes into stock | `inventory.add([...])` | how many were added, duplicated, invalid |
+| Learn the fate of many activations at once | `redeem.status_batch(ids)` | up to 100 statuses per call |
+
+Two things that save time and money:
+
+- **`accepted` can be lower than `requested`.** A batch is trimmed by the remaining
+  quota or by what is actually stocked — that is a normal answer, not an error, so
+  compare the numbers.
+- **The idempotency key covers the whole batch**, not an item. A repeat with the same
+  key returns the same task, so a retry after a timeout never doubles the order.
+
 ### Your own code stock — activate by denomination
 
 When codes are bought in advance and held by the service: you name a denomination rather
