@@ -4,17 +4,32 @@
 from __future__ import annotations
 
 from enum import StrEnum
-from typing import Annotated
+from typing import Annotated, Any
 
 from pydantic import AnyUrl, AwareDatetime, BaseModel, EmailStr, Field, RootModel, SecretStr
 
 
 class AccountEnv(StrEnum):
+    """
+    Which Midas environment an account targets (D-N1 / SDK §3.2).
+    """
+
     online = "online"
     verify = "verify"
 
 
 class AccountStatus(StrEnum):
+    """
+    Account vault lifecycle — also the worker claim state machine (D-15):
+    CONNECTING is the claimable PENDING, RUNNING the in-flight claim, CONNECTED/
+    FAILED the finalise terminals, EXPIRED the relogin loop's unrefreshable marker.
+
+    REVOKED is the operator terminal — set only by an explicit back-office revoke,
+    never by the worker. The worker only ever claims CONNECTING, so a REVOKED row
+    is never claimed; account-selection (``first_connected``) filters CONNECTED,
+    so a REVOKED row is never handed to redeem / buy-links either.
+    """
+
     connecting = "connecting"
     running = "running"
     connected = "connected"
@@ -24,6 +39,14 @@ class AccountStatus(StrEnum):
 
 
 class ActivateByDenominationRequest(BaseModel):
+    """
+    Activate using a stocked code of a denomination — no explicit code on input.
+
+    The service picks a RANDOM available code of ``(game, denomination_value)``
+    from the caller's inventory and drives a standalone activation with it; the
+    customer never names a specific code (D-33).
+    """
+
     account_id: Annotated[str, Field(max_length=26, min_length=1, title="Account Id")]
     denomination_value: Annotated[int, Field(gt=0, title="Denomination Value")]
     game: Annotated[str, Field(max_length=64, min_length=1, title="Game")]
@@ -63,6 +86,16 @@ class AddCodesResult(BaseModel):
 
 
 class BatchActivateByDenominationRequest(BaseModel):
+    """
+    Activate up to ``quantity`` random stocked codes of a denomination in one call.
+
+    Each unit is one activation and consumes one activation from the account-master
+    quota. ``quantity`` is hard-capped at 1000 here and further bounded by the
+    server's ``batch_max_size`` setting. When the quota is short, the global
+    ``batch_strict_quota_check`` flag decides between a trimmed batch and an
+    overspend (see the service).
+    """
+
     account_id: Annotated[str, Field(max_length=26, min_length=1, title="Account Id")]
     denomination_value: Annotated[int, Field(gt=0, title="Denomination Value")]
     game: Annotated[str, Field(max_length=64, min_length=1, title="Game")]
@@ -71,6 +104,13 @@ class BatchActivateByDenominationRequest(BaseModel):
 
 
 class BatchActivationAccepted(BaseModel):
+    """
+    Batch outcome — how many were requested vs actually accepted, and their ids.
+
+    ``accepted`` can be below ``requested`` when the batch was trimmed to the
+    remaining quota (strict) or ran out of stocked codes.
+    """
+
     accepted: Annotated[int, Field(title="Accepted")]
     activation_ids: Annotated[list[str], Field(title="Activation Ids")]
     requested: Annotated[int, Field(title="Requested")]
@@ -108,6 +148,10 @@ class CatalogItem(BaseModel):
 
 
 class Character(BaseModel):
+    """
+    The in-game role resolved for a looked-up player id.
+    """
+
     game: Annotated[str, Field(title="Game")]
     is_ban: Annotated[bool | None, Field(title="Is Ban")] = False
     player_id: Annotated[str, Field(title="Player Id")]
@@ -116,6 +160,10 @@ class Character(BaseModel):
 
 
 class CharacterList(BaseModel):
+    """
+    Pageable list of characters for an account + game.
+    """
+
     items: Annotated[list[Character], Field(title="Items")]
 
 
@@ -124,6 +172,14 @@ class CharacterRefreshRequest(BaseModel):
 
 
 class CodeStatus(StrEnum):
+    """
+    A stocked redeem code's lifecycle.
+
+    AVAILABLE → RESERVED (atomic reserve into a task) → USED (activation SUCCESS)
+    or back to AVAILABLE (activation non-SUCCESS, released by the aggregator).
+    INVALID marks a code rejected by shape validation on import.
+    """
+
     available = "available"
     reserved = "reserved"
     used = "used"
@@ -139,6 +195,10 @@ class CodeStock(BaseModel):
 
 
 class Country(StrEnum):
+    """
+    ISO-3166-1 alpha-2 subset the gateway accepts as a region.
+    """
+
     US = "US"
     BR = "BR"
     ID = "ID"
@@ -247,6 +307,12 @@ class TaskItemResult(BaseModel):
 
 
 class TaskState(StrEnum):
+    """
+    Aggregate task lifecycle. PENDING/RUNNING are non-terminal; the three
+    terminals are decided by the aggregator from the per-item outcomes (D-38):
+    SUCCESS (all ok), PARTIAL (mixed), FAILED (none).
+    """
+
     pending = "pending"
     running = "running"
     success = "success"
@@ -260,6 +326,8 @@ class TaskType(StrEnum):
 
 
 class ValidationError(BaseModel):
+    ctx: Annotated[dict[str, Any] | None, Field(title="Context")] = None
+    input: Annotated[Any | None, Field(title="Input")] = None
     loc: Annotated[list[str | int], Field(title="Location")]
     msg: Annotated[str, Field(title="Message")]
     type: Annotated[str, Field(title="Error Type")]
@@ -293,6 +361,13 @@ class ActivationResult(BaseModel):
 
 
 class BatchStatusResult(BaseModel):
+    """
+    The rows that resolved, plus the ids that did not.
+
+    Unknown and cross-customer ids both land in ``missing`` — indistinguishable,
+    so the endpoint cannot be used as an id oracle.
+    """
+
     activations: Annotated[list[ActivationResult], Field(title="Activations")]
     missing: Annotated[list[str], Field(title="Missing")]
 

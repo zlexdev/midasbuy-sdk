@@ -33,6 +33,7 @@ from midasbuy_sdk.errors import (
     AuthFailed,
     DailyCapReached,
     MidasbuyError,
+    NetworkError,
     NotFound,
     OutOfStock,
     RateLimited,
@@ -41,15 +42,23 @@ from midasbuy_sdk.errors import (
     WaitTimeout,
 )
 
-__version__ = "0.2.0"
+# The states a quickstart has to branch on live at the top level with the client:
+# the first example must run exactly as copied, and `from midasbuy_sdk.models import
+# AccountStatus` is one indirection more than a first screen may cost.
+from midasbuy_sdk.models import AccountStatus, ActivationState
+
+__version__ = "0.3.0"
 
 __all__ = [
     "DEFAULT_BASE_URL",
+    "AccountStatus",
+    "ActivationState",
     "AsyncMidasbuyClient",
     "AuthFailed",
     "DailyCapReached",
     "MidasbuyClient",
     "MidasbuyError",
+    "NetworkError",
     "NotFound",
     "OutOfStock",
     "Page",

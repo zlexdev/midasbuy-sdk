@@ -80,6 +80,16 @@ class ServerError(MidasbuyError):
     """The service failed. Retried automatically; this means it kept failing."""
 
 
+class NetworkError(MidasbuyError):
+    """The request never got an answer — the connection failed or timed out.
+
+    Retried automatically with the SAME idempotency key, so this means the network
+    kept failing. Safe to retry the call yourself **only** if you pass the same
+    ``idempotency_key`` you used the first time: without it the client mints a new
+    one and the server treats the retry as a second, independent activation.
+    """
+
+
 class WaitTimeout(MidasbuyError):
     """``wait_for`` gave up before the activation reached a terminal status.
 

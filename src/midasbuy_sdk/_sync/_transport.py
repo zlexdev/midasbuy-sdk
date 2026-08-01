@@ -12,10 +12,30 @@ from typing import Any
 
 import httpx
 
-from midasbuy_sdk.errors import DailyCapReached, MidasbuyError, RateLimited, error_for
+from midasbuy_sdk.errors import (
+    DailyCapReached,
+    NetworkError,
+    RateLimited,
+    error_for,
+)
 
 _RETRY_STATUSES = frozenset({429, 500, 502, 503, 504})
 _MAX_BACKOFF_S = 30.0
+# A 429 that carries this code is a daily cap, not a burst: no amount of waiting
+# inside one call turns it into a success, so it is answered rather than retried.
+_TERMINAL_CODES = frozenset({"activation_window_limit"})
+
+
+def _error_code(response: httpx.Response) -> str | None:
+    """The API's stable machine string, or ``None`` if the body is not ours."""
+    try:
+        payload = response.json()
+    except ValueError:
+        return None
+    if not isinstance(payload, dict):
+        return None
+    code = payload.get("error_code") or payload.get("code")
+    return code if isinstance(code, str) else None
 
 
 def _retry_after(response: httpx.Response, *, default: float = 1.0) -> float:
@@ -67,13 +87,30 @@ class Transport:
             headers["Idempotency-Key"] = idempotency_key or str(uuid.uuid4())
         clean = {k: v for k, v in (params or {}).items() if v is not None}
         url = f"{self._base_url}{path}"
+        last_network_error: Exception | None = None
         for attempt in range(self._max_retries + 1):
-            response = self._http.request(method, url, json=json, params=clean, headers=headers)
-            if response.status_code in _RETRY_STATUSES and attempt < self._max_retries:
+            try:
+                response = self._http.request(method, url, json=json, params=clean, headers=headers)
+            except (httpx.TimeoutException, httpx.TransportError) as exc:
+                # A dropped connection is as transient as a 503, and until this was
+                # caught here it escaped as a raw httpx error PAST the retry loop —
+                # so the caller retried the call itself, got a fresh idempotency key
+                # and could spend one code twice.
+                last_network_error = exc
+                if attempt < self._max_retries:
+                    time.sleep(min(2.0**attempt, _MAX_BACKOFF_S))
+                    continue
+                raise NetworkError(f"{method} {path} failed: {exc}") from exc
+            retriable = response.status_code in _RETRY_STATUSES and (
+                response.status_code != 429 or _error_code(response) not in _TERMINAL_CODES
+            )
+            if retriable and attempt < self._max_retries:
                 time.sleep(self._backoff(attempt, response))
                 continue
             return self._unwrap(response)
-        raise MidasbuyError("request failed after retries")  # pragma: no cover
+        raise NetworkError(  # pragma: no cover — the loop always returns or raises above
+            f"{method} {path} failed after {self._max_retries} retries"
+        ) from last_network_error
 
     def _backoff(self, attempt: int, response: httpx.Response) -> float:
         explicit = _retry_after(response, default=0.0)

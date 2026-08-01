@@ -9,11 +9,22 @@ from midasbuy_sdk.models import AddCodesResult, CodeStock, InventoryItem
 
 
 class AsyncInventory(AsyncResource):
-    async def add(self, items: Sequence[Mapping[str, Any]]) -> AddCodesResult:
+    async def add(
+        self,
+        items: Sequence[Mapping[str, Any]],
+        *,
+        idempotency_key: str | None = None,
+    ) -> AddCodesResult:
         """Import codes into your stock. Each item:
-        ``{"code", "game", "denomination_value", "currency"?}``."""
+        ``{"code", "game", "denomination_value", "currency"?}``.
+
+        Pass ``idempotency_key`` when your own code may retry the import: without
+        it every call mints a new one, and a retried batch is imported twice."""
         data = await self._t.request(
-            "POST", "/inventory/add", json={"items": [dict(i) for i in items]}
+            "POST",
+            "/inventory/add",
+            json={"items": [dict(i) for i in items]},
+            idempotency_key=idempotency_key,
         )
         return AddCodesResult.model_validate(data)
 

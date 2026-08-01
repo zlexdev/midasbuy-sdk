@@ -33,7 +33,11 @@ class Page(Generic[T]):
 
     @property
     def next_offset(self) -> int:
-        return self.offset + self.limit
+        """Where the next page starts — counted from what ARRIVED, not what was asked.
+
+        ``offset + limit`` assumes a full page every time; a page the server trimmed
+        for any reason would make the walk skip the rows it did not send."""
+        return self.offset + len(self.items)
 
     def __iter__(self):  # type: ignore[no-untyped-def]
         return iter(self.items)

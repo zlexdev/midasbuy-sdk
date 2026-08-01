@@ -28,21 +28,43 @@ pip install midasbuy-sdk
 Методы сгруппированы по ресурсам: `client.accounts`, `client.catalog`,
 `client.inventory`, `client.redeem`, `client.tasks`, `client.subscription`.
 
+**Аккаунт и игрок — разные вещи, и это главное, что нужно понять про activate.**
+
+- `account_id` — Midas-аккаунт, **с которого** идёт активация. Его подключают один
+  раз, дальше он живёт на сервере.
+- `player_id` — игрок, **которому** уходит товар. Может быть чужим: свой аккаунт
+  активирует код на любой игровой ID.
+
+`player_id` не обязателен: без него товар уходит на сам аккаунт — это дефолт для
+игр без персонажей.
+
 ```python
 import asyncio
-from midasbuy_sdk import AsyncMidasbuyClient
+from midasbuy_sdk import AccountStatus, AsyncMidasbuyClient
 
 
 async def main() -> None:
     async with AsyncMidasbuyClient("ваш-ключ") as client:
-        # 1. подключите свой Midas-аккаунт — активировать нужно на него
+        # 1. подключите Midas-аккаунт — С НЕГО будут идти активации.
+        #    Ответ приходит сразу со статусом CONNECTING: вход выполняется на
+        #    сервере, поэтому дождитесь CONNECTED, прежде чем активировать.
         account = await client.accounts.connect(
             country="RU", email="you@example.com", password="..."
         )
+        while (state := (await client.accounts.get(account.account_id)).status) in (
+            AccountStatus.connecting,
+            AccountStatus.running,
+        ):
+            await asyncio.sleep(2)
+        if state is not AccountStatus.connected:
+            raise RuntimeError(f"аккаунт не подключился: {state}")
 
-        # 2. активируйте код и дождитесь результата — одним вызовом
+        # 2. активируйте код НА ИГРОКА и дождитесь результата — одним вызовом
         result = await client.redeem.activate_and_wait(
-            "CODE-1234", account_id=account.account_id, game="pubgm"
+            "CODE-1234",
+            account_id=account.account_id,   # с какого аккаунта
+            game="pubgm",
+            player_id="5544128792",          # какому игроку
         )
         print(result.status, result.granted_item)
 
@@ -50,13 +72,23 @@ async def main() -> None:
 asyncio.run(main())
 ```
 
+Не знаете, тот ли это игрок — проверьте до списания кода:
+
+```python
+who = await client.characters.lookup(
+    account_id=account.account_id, game="pubgm", player_id="5544128792"
+)
+print(who.role_name, who.region, who.is_ban)
+```
+
 Пачкой — ровно то, ради чего нужен async:
 
 ```python
 async with AsyncMidasbuyClient("ваш-ключ") as client:
     jobs = await asyncio.gather(*(
-        client.redeem.activate(code, account_id="acc_...", game="pubgm")
-        for code in codes
+        client.redeem.activate(code, account_id="acc_...", game="pubgm",
+                               player_id=player)
+        for code, player in codes_to_players
     ))
     rows = await client.redeem.status_batch([j.activation_id for j in jobs])
 ```
@@ -69,7 +101,7 @@ from midasbuy_sdk import MidasbuyClient
 
 with MidasbuyClient("ваш-ключ") as client:
     result = client.redeem.activate_and_wait(
-        "CODE-1234", account_id="acc_...", game="pubgm"
+        "CODE-1234", account_id="acc_...", game="pubgm", player_id="5544128792"
     )
 ```
 

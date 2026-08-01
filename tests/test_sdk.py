@@ -11,8 +11,12 @@ from midasbuy_sdk import (
     AuthFailed,
     DailyCapReached,
     MidasbuyClient,
+    NetworkError,
+    NotFound,
     OutOfStock,
     RateLimited,
+    ServerError,
+    WaitTimeout,
 )
 
 BASE = "https://api.test/v1"
@@ -198,3 +202,172 @@ async def test_async_wait_for_polls_until_terminal() -> None:
     async with AsyncMidasbuyClient("k", base_url=BASE) as c:
         result = await c.redeem.wait_for("a", poll=0)
     assert result.status.value == "success"
+
+
+# ── the failures the retry loop is supposed to absorb ────────────────────────
+
+
+@respx.mock
+def test_a_dropped_connection_is_retried_with_the_same_idempotency_key() -> None:
+    """A timeout used to escape the loop as a raw httpx error, so the CALLER retried —
+    with a fresh key — and one code could be spent twice."""
+    route = respx.post(f"{BASE}/redeem/activate").mock(
+        side_effect=[
+            httpx.ReadTimeout("boom"),
+            httpx.ConnectError("boom"),
+            httpx.Response(202, json={"data": {"activation_id": "act_1", "status": "pending"}}),
+        ]
+    )
+
+    with _client() as client:
+        accepted = client.redeem.activate("C", account_id="acc", game="pubgm")
+
+    assert accepted.activation_id == "act_1"
+    assert route.call_count == 3
+    keys = {call.request.headers["Idempotency-Key"] for call in route.calls}
+    assert len(keys) == 1, "every retry must carry the key the first attempt used"
+
+
+@respx.mock
+def test_a_network_failure_that_never_recovers_is_typed() -> None:
+    respx.post(f"{BASE}/redeem/activate").mock(side_effect=httpx.ConnectTimeout("boom"))
+
+    with _client() as client, pytest.raises(NetworkError) as caught:
+        client.redeem.activate("C", account_id="acc", game="pubgm")
+
+    assert "redeem/activate" in str(caught.value)
+
+
+@respx.mock
+def test_server_errors_are_retried_then_surface_typed() -> None:
+    respx.get(f"{BASE}/subscription").mock(return_value=httpx.Response(503, json={}))
+
+    with _client() as client, pytest.raises(ServerError):
+        client.subscription.get()
+
+
+@respx.mock
+def test_a_transient_500_is_retried_and_succeeds() -> None:
+    route = respx.get(f"{BASE}/subscription").mock(
+        side_effect=[
+            httpx.Response(500, json={}),
+            httpx.Response(500, json={}),
+            httpx.Response(
+                200,
+                json={"data": {"status": "active", "type": "duration", "rate_limit_per_min": 120}},
+            ),
+        ]
+    )
+
+    with _client() as client:
+        assert client.subscription.get().rate_limit_per_min == 120
+    assert route.call_count == 3
+
+
+@respx.mock
+def test_the_daily_cap_is_answered_not_retried() -> None:
+    """A 429 is a burst; a 429 carrying the cap code is a wall — waiting cannot help."""
+    route = respx.post(f"{BASE}/redeem/activate").mock(
+        return_value=httpx.Response(
+            429, json={"error_code": "activation_window_limit", "message": "cap"}
+        )
+    )
+
+    with _client() as client, pytest.raises(DailyCapReached):
+        client.redeem.activate("C", account_id="acc", game="pubgm")
+
+    assert route.call_count == 1, "the cap must not burn the retry budget"
+
+
+# ── walking pages, and giving up on waiting ──────────────────────────────────
+
+
+@respx.mock
+def test_iterate_walks_pages_by_what_arrived() -> None:
+    respx.get(f"{BASE}/redeem/list").mock(
+        side_effect=[
+            httpx.Response(
+                200,
+                json={
+                    "data": {
+                        "items": [
+                            {"activation_id": "a1", "status": "success", "game": "pubgm"},
+                            {"activation_id": "a2", "status": "success", "game": "pubgm"},
+                        ],
+                        "total": 3,
+                    }
+                },
+            ),
+            httpx.Response(
+                200,
+                json={
+                    "data": {
+                        "items": [{"activation_id": "a3", "status": "success", "game": "pubgm"}],
+                        "total": 3,
+                    }
+                },
+            ),
+        ]
+    )
+
+    with _client() as client:
+        seen = [row.activation_id for row in client.redeem.iterate(limit=2)]
+
+    assert seen == ["a1", "a2", "a3"]
+
+
+@respx.mock
+def test_iterate_stops_on_an_empty_first_page() -> None:
+    respx.get(f"{BASE}/redeem/list").mock(
+        return_value=httpx.Response(200, json={"data": {"items": [], "total": 0}})
+    )
+
+    with _client() as client:
+        assert list(client.redeem.iterate()) == []
+
+
+@respx.mock
+def test_wait_for_gives_up_and_says_so() -> None:
+    respx.get(f"{BASE}/redeem/get").mock(
+        return_value=httpx.Response(
+            200, json={"data": {"activation_id": "a1", "status": "running", "game": "pubgm"}}
+        )
+    )
+
+    with _client() as client, pytest.raises(WaitTimeout):
+        client.redeem.wait_for("a1", poll=0.0, timeout=0.0)
+
+
+@respx.mock
+def test_a_vanished_activation_surfaces_as_not_found_while_waiting() -> None:
+    """Documented on purpose: waiting does not swallow a 404 into a timeout."""
+    respx.get(f"{BASE}/redeem/get").mock(
+        return_value=httpx.Response(404, json={"error_code": "not_found", "message": "gone"})
+    )
+
+    with _client() as client, pytest.raises(NotFound):
+        client.redeem.wait_for("a1", poll=0.0, timeout=5.0)
+
+
+def test_closing_the_client_closes_the_connection_pool() -> None:
+    client = _client()
+    client.close()
+    assert client._t._http.is_closed
+
+
+@respx.mock
+def test_inventory_add_accepts_a_caller_key() -> None:
+    route = respx.post(f"{BASE}/inventory/add").mock(
+        return_value=httpx.Response(
+            200,
+            json={"data": {"added": 1, "invalid": 0, "skipped_duplicates": 0}},
+        )
+    )
+
+    with _client() as client:
+        client.inventory.add(
+            [{"code": "C", "game": "pubgm", "denomination_value": 60}],
+            idempotency_key="imp-1",
+        )
+
+    assert route.calls[0].request.headers["Idempotency-Key"] == "imp-1"
