@@ -208,9 +208,6 @@ async def test_async_wait_for_polls_until_terminal() -> None:
     assert result.status.value == "success"
 
 
-# ── the failures the retry loop is supposed to absorb ────────────────────────
-
-
 @respx.mock
 def test_a_dropped_connection_is_retried_with_the_same_idempotency_key() -> None:
     """A timeout used to escape the loop as a raw httpx error, so the CALLER retried —
@@ -281,9 +278,6 @@ def test_the_daily_cap_is_answered_not_retried() -> None:
         client.redeem.activate("C", account_id="acc", game="pubgm")
 
     assert route.call_count == 1, "the cap must not burn the retry budget"
-
-
-# ── walking pages, and giving up on waiting ──────────────────────────────────
 
 
 @respx.mock
@@ -418,6 +412,25 @@ def test_every_server_enum_is_reachable_without_digging() -> None:
     }
     missing = sorted(name for name in declared if not hasattr(midasbuy_sdk, name))
     assert not missing, f"enums reachable only via .models: {missing}"
+
+
+def test_the_readme_never_shows_a_literal_where_a_constant_exists() -> None:
+    """Shipping the enum and then demonstrating strings teaches the strings.
+
+    The example is what people copy, so it is the real API surface — a literal here
+    outweighs any amount of prose about constants.
+    """
+    from pathlib import Path
+
+    readme = Path(__file__).resolve().parents[1] / "README.md"
+    lines = readme.read_text(encoding="utf-8").splitlines()
+    offenders = [
+        (n, line)
+        for n, line in enumerate(lines, 1)
+        for literal in ('game="', "game='", 'country="', "country='")
+        if literal in line
+    ]
+    assert not offenders, f"use GameSlug / Country in the examples: {offenders}"
 
 
 def test_a_game_slug_passes_as_a_plain_string() -> None:
