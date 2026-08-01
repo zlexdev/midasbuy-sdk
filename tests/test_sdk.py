@@ -371,3 +371,25 @@ def test_inventory_add_accepts_a_caller_key() -> None:
         )
 
     assert route.calls[0].request.headers["Idempotency-Key"] == "imp-1"
+
+
+def test_the_default_host_is_the_one_the_docs_name() -> None:
+    """The default base URL is the one thing every fresh install uses unchanged.
+
+    It shipped once pointing at a host with no DNS record at all, so `pip install`
+    + the README's first example died on name resolution. A live probe belongs in a
+    smoke run, not here; what this pins is that the constant, the README and DESIGN
+    cannot drift apart — which is how the stale one survived a release.
+    """
+    from pathlib import Path
+
+    from midasbuy_sdk import DEFAULT_BASE_URL
+
+    assert DEFAULT_BASE_URL.startswith("https://")
+    assert DEFAULT_BASE_URL.endswith("/v1"), "the version prefix belongs in the default"
+
+    host = DEFAULT_BASE_URL.removeprefix("https://").removesuffix("/v1")
+    root = Path(__file__).resolve().parents[1]
+    for doc in ("README.md", "DESIGN.md"):
+        text = (root / doc).read_text(encoding="utf-8")
+        assert host in text, f"{doc} names a different host than DEFAULT_BASE_URL"

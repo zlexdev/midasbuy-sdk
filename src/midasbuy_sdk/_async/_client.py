@@ -11,8 +11,15 @@ from midasbuy_sdk._async.resources.redeem import AsyncRedeem
 from midasbuy_sdk._async.resources.subscription import AsyncSubscription
 from midasbuy_sdk._async.resources.tasks import AsyncTasks
 
-DEFAULT_BASE_URL = "https://free.midas.chqcode.dev/v1"
-"""The free contour. Point at your paid host by passing ``base_url=``."""
+DEFAULT_BASE_URL = "https://free.midasbuy-api.dev/v1"
+"""The free contour. Point at your paid host by passing ``base_url=``.
+
+Verified by request, not by belief: the previous default (``free.midas.chqcode.dev``)
+had no DNS record at all, so a fresh install failed on name resolution before it ever
+spoke to us. A host is confirmed the day it ships — ``/health`` answers 200 and an
+unauthenticated ``/v1/*`` answers our own ``401 {"error_code": "unauthorized"}``. The
+apex domain answers 200 with HTML (it serves the landing page) and is NOT the API.
+"""
 
 
 class AsyncMidasbuyClient:

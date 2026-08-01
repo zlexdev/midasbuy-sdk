@@ -117,7 +117,7 @@ status fallback — not a hand-maintained dict of three strings.
 ## Packaging & versioning
 
 - `py.typed`, pydantic v2 + httpx as the only runtime deps.
-- `DEFAULT_BASE_URL = "https://free.midas.chqcode.dev/v1"` (real free host); `base_url=` for paid.
+- `DEFAULT_BASE_URL = "https://free.midasbuy-api.dev/v1"` (real free host, DNS + `/health` checked); `base_url=` for paid.
 - SemVer tracks the API's public contract major. Publish via PyPI Trusted Publisher (OIDC), tag =
   release. No token in CI.
 - First rebuilt release: **0.2.0** (0.1.x superseded; not yank-worthy, just eclipsed).

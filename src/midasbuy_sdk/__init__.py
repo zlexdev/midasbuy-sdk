@@ -47,7 +47,7 @@ from midasbuy_sdk.errors import (
 # AccountStatus` is one indirection more than a first screen may cost.
 from midasbuy_sdk.models import AccountStatus, ActivationState
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 
 __all__ = [
     "DEFAULT_BASE_URL",

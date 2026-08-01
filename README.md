@@ -28,6 +28,9 @@ pip install midasbuy-sdk
 Методы сгруппированы по ресурсам: `client.accounts`, `client.catalog`,
 `client.inventory`, `client.redeem`, `client.tasks`, `client.subscription`.
 
+Без `base_url` клиент бьёт в бесплатный контур — `https://free.midasbuy-api.dev/v1`.
+Платный хост передаётся явно: `AsyncMidasbuyClient("ключ", base_url="https://api.ваш-домен/v1")`.
+
 **Аккаунт и игрок — разные вещи, и это главное, что нужно понять про activate.**
 
 - `account_id` — Midas-аккаунт, **с которого** идёт активация. Его подключают один
